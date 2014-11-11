@@ -1,0 +1,1 @@
+OpenCV VideoCapture-like interface for OV5640 MIPI-CSI2 image sensor (WandCam).
