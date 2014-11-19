@@ -1,16 +1,10 @@
 /*
-* Copyright 2014 jafp, Inc. All Rights Reserved.
-*/
-
-/*
-* The code contained herein is licensed under the GNU Lesser General
-* Public License. You may obtain a copy of the GNU Lesser General
-* Public License Version 2.1 or later at the following locations:
-*
-* http://www.opensource.org/licenses/lgpl-license.html
-* http://www.gnu.org/copyleft/lgpl.html
-*/
-
+ * Copyright 2014 Jacob Aslund <jacob@itbuster.dk>
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+ 
 #ifndef IPU_CSC_H_
 #define IPU_CSC_H_
 
