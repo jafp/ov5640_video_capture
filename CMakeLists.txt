@@ -1,7 +1,7 @@
 
 cmake_minimum_required (VERSION 2.8.1)
 
-######## Project settings ########
+########+ Project settings ########
 PROJECT(ov_video_capture)
 SET(LICENSE "MIT")
 
@@ -16,7 +16,7 @@ link_directories(
 	${LINK_DIRECTORIES}
 )
 
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -pedantic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic")
 
 add_executable(
 	test
@@ -28,4 +28,5 @@ add_executable(
 target_link_libraries(
 	test
 	opencv_core
+	opencv_highgui
 )

@@ -20,10 +20,10 @@ namespace jafp {
 const OvVideoMode OvVideoCapture::OV_MODE_320_240_30 = { 320, 240, 30, 1 };
 const OvVideoMode OvVideoCapture::OV_MODE_640_480_30 = { 640, 480, 30, 0 };
 
-static void to_gray(const OvFrameBuffer* input, unsigned char* output) {
-	int i = 0, j = 0, size = input->length;
-	for (; i < size; i += 2) {
-		output[j] = input->start[i + 1];
+static void to_gray(const unsigned char* input, unsigned char* output, int length) {
+	int i = 0, j = 0;
+	for (; i < length; i += 2) {
+		output[j] = input[i + 1];
 		j += 1;
 	}
 }
@@ -32,6 +32,9 @@ OvVideoCapture::OvVideoCapture(const OvVideoMode& mode)
 	: mode_(mode) { }
 
 OvVideoCapture::~OvVideoCapture() {
+	if (buffer_) {
+		delete[] buffer_;
+	}
 	release();
 }
 
@@ -82,6 +85,7 @@ bool OvVideoCapture::grab() {
 	// Do not copy anything here, but save the index of the current
 	// frame buffer for later use (e.g. in retrieve)
 	current_buffer_index_ = capture_buf.index;
+	memcpy(buffer_, buffers_[capture_buf.index].start, frame_size_);
 
 	if (ioctl (fd_, VIDIOC_QBUF, &capture_buf) < 0) {
 		return false;
@@ -94,10 +98,8 @@ bool OvVideoCapture::retrieve(cv::Mat& image) {
 		return false;
 	}	
 
-	cv::Mat temp(mode_.height, mode_.width, CV_8U);
-	// Possibly use IPU to perform CSC
-	to_gray(&buffers_[current_buffer_index_], temp.data);
-	temp.copyTo(image);
+	image.create(mode_.height, mode_.width, CV_8UC1);
+	to_gray(buffer_, image.data, frame_size_);
 
 	return true;
 }
@@ -144,7 +146,7 @@ bool OvVideoCapture::start_capturing() {
 		return false;
 	}
 	
-	return false;
+	return true;
 }
 
 bool OvVideoCapture::open_internal() {
@@ -157,6 +159,7 @@ bool OvVideoCapture::open_internal() {
 
 	// Mode's size combined with default format's number of channels
 	frame_size_ = mode_.width * mode_.height * DefaultFormatChannels;
+	buffer_ = new unsigned char[frame_size_];
 
 	if ((fd_ = ::open("/dev/video0", O_RDWR, 0)) < 0) {
 		return false;

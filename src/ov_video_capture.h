@@ -74,6 +74,7 @@ private:
 	int current_buffer_index_;
 	int frame_size_;
 	bool is_opened_;
+	unsigned char* buffer_;
 
 	OvFrameBuffer buffers_[NumBuffers];
 	const OvVideoMode& mode_;
