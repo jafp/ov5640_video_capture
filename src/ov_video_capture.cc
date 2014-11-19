@@ -20,6 +20,7 @@ namespace jafp {
 const OvVideoMode OvVideoCapture::OV_MODE_320_240_30 = { 320, 240, 30, 1 };
 const OvVideoMode OvVideoCapture::OV_MODE_640_480_30 = { 640, 480, 30, 0 };
 
+/*
 static void to_gray(const unsigned char* input, unsigned char* output, int length) {
 	int i = 0, j = 0;
 	for (; i < length; i += 2) {
@@ -27,18 +28,26 @@ static void to_gray(const unsigned char* input, unsigned char* output, int lengt
 		j += 1;
 	}
 }
+*/
 
 OvVideoCapture::OvVideoCapture(const OvVideoMode& mode) 
-	: mode_(mode) { }
+	: mode_(mode) { 
+}
 
 OvVideoCapture::~OvVideoCapture() {
 	if (buffer_) {
 		delete[] buffer_;
 	}
+	ipu_csc_close(&ipu_csc_);
 	release();
 }
 
 bool OvVideoCapture::open() {
+	ipu_input_format_ = { mode_.width, mode_.height, 16, V4L2_PIX_FMT_UYVY };
+	ipu_output_format_ = { mode_.width, mode_.height, 24, V4L2_PIX_FMT_BGR24 };
+
+	ipu_csc_init(&ipu_csc_, &ipu_input_format_, &ipu_output_format_);
+
 	if(!open_internal()) {
 		return false;
 	}
@@ -98,8 +107,9 @@ bool OvVideoCapture::retrieve(cv::Mat& image) {
 		return false;
 	}	
 
-	image.create(mode_.height, mode_.width, CV_8UC1);
-	to_gray(buffer_, image.data, frame_size_);
+	image.create(mode_.height, mode_.width, CV_8UC3);
+	//to_gray(buffer_, image.data, frame_size_);
+	ipu_csc_convert(&ipu_csc_, buffer_, image.data);
 
 	return true;
 }

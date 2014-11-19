@@ -22,6 +22,7 @@ add_executable(
 	test
 
 	src/main.cc
+	src/ipu_csc.c
 	src/ov_video_capture.cc
 )
 

@@ -11,6 +11,10 @@
 #include <opencv2/core/core.hpp>
 #include <linux/videodev2.h>
 
+extern "C" {
+	#include "ipu_csc.h"
+}
+
 namespace jafp {
 
 struct OvVideoMode {
@@ -75,6 +79,12 @@ private:
 	int frame_size_;
 	bool is_opened_;
 	unsigned char* buffer_;
+
+	// Use the iMX6 IPU to do color space conversion
+	// See http://github.com/jafp/imx6_ipu_csc
+	ipu_csc_t ipu_csc_;	
+	ipu_csc_format_t ipu_input_format_;
+	ipu_csc_format_t ipu_output_format_;
 
 	OvFrameBuffer buffers_[NumBuffers];
 	const OvVideoMode& mode_;
